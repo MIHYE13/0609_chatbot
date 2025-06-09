@@ -3,16 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>간단한 GPT 챗봇</title>
-  <script type="module" src="/main.js"></script>
+  <title>책갈피 요정의 책 추천 📚✨</title>
+  <!-- Tailwind CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- 커스텀 스타일 -->
+  <style>
+    /* 책 테마 배경 (따뜻한 톤) */
+    body {
+      /* 은은한 베이지-오렌지 그라데이션 */
+      background: linear-gradient(to bottom right, #f5f5dc, #ffe4c4, #ffdab9); /* beige, bisque, peachpuff */
+      background-size: cover;
+      background-attachment: fixed;
+      font-family: 'Arial', sans-serif;
+      color: #333;
+    }
+
+    /* 챗봇 제목 스타일 (책 테마) */
+    .book-title-text {
+      color: #8b4513; /* saddlebrown */
+      /* 또는 은은한 그라데이션 */
+      /* background: linear-gradient(to right, #a0522d, #d2691e); */ /* sienna, chocolate */
+      /* -webkit-background-clip: text; */
+      /* -webkit-text-fill-color: transparent; */
+      /* background-clip: text; */
+      /* color: transparent; */
+      font-weight: bold;
+    }
+
+
+    /* 챗봇 컨테이너 (카드) 스타일 */
+    .chat-container {
+        background-color: rgba(255, 255, 255, 0.95); /* 거의 투명하지 않은 흰색 */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px; /* 더 둥근 모서리 */
+        width: 100%;
+        max-width: 500px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    /* 챗박스 스타일 */
+    #chatbox {
+      height: 350px; /* 높이 증가 */
+      overflow-y: auto;
+      background-color: #fffaf0; /* florawhite - 아주 연한 노랑 */
+      padding: 15px; /* 패딩 증가 */
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #d3d3d3; /* lightgrey 테두리 */
+    }
+
+    /* 스크롤바 스타일 */
+    #chatbox::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chatbox::-webkit-scrollbar-thumb {
+      background-color: rgba(139, 69, 19, 0.5); /* saddlebrown 반투명 */
+      border-radius: 4px;
+    }
+    #chatbox::-webkit-scrollbar-track {
+      background-color: rgba(139, 69, 19, 0.1); /* saddlebrown 더 투명 */
+    }
+
+    /* 입력창과 버튼 컨테이너 */
+    .input-area {
+        display: flex;
+        gap: 8px; /* 입력창과 버튼 사이 간격 */
+        margin-top: 1rem;
+    }
+
+    /* 입력창 스타일 */
+    #userInput {
+       flex-grow: 1; /* 사용 가능한 공간 채우기 */
+       border: 1px solid #ccc;
+       padding: 10px 12px;
+       border-radius: 8px;
+       font-size: 1rem;
+    }
+
+    /* 버튼 스타일 */
+    #sendBtn {
+      background-color: #d2691e; /* chocolate 색상 */
+      color: white;
+      font-weight: bold;
+      padding: 10px 20px; /* 패딩 조정 */
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      flex-shrink: 0; /* 크기 줄어들지 않게 */
+    }
+
+    #sendBtn:hover {
+      background-color: #cd853f; /* peru 색상 - 호버 시 약간 밝게 */
+    }
+
+    #sendBtn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    /* 메시지 버블 기본 스타일 */
+    #chatbox > div { /* chatbox 바로 아래 div (메시지 행 전체) */
+        display: flex; /* flexbox로 버블 정렬 */
+    }
+
+     #chatbox > div > div { /* 메시지 버블 자체 */
+        padding: 8px 12px;
+        border-radius: 16px; /* 더 둥근 모서리 */
+        margin-bottom: 8px; /* 메시지 간 간격 */
+        max-width: 80%;
+        word-break: break-word; /* 긴 단어 줄바꿈 */
+        /* float: right/left; clear: both; 는 flexbox와 함께 사용하지 않음 */
+     }
+
+
+    /* 사용자 메시지 버블 */
+    .text-right { /* 상위 div가 오른쪽 정렬 */
+        justify-content: flex-end; /* flex item (버블)을 오른쪽 끝으로 정렬 */
+    }
+    .user-message-bubble {
+        background-color: #add8e6; /* lightblue */
+        color: #000080; /* navy */
+    }
+
+     /* 봇 메시지 버블 */
+    .text-left { /* 상위 div가 왼쪽 정렬 */
+        justify-content: flex-start; /* flex item (버블)을 왼쪽 끝으로 정렬 */
+    }
+    .bot-message-bubble {
+        background-color: #ffe4b5; /* moccasin - 연한 주황색 계열 */
+        color: #4b0082; /* indigo */
+        border: 1px solid #cd853f; /* peru - 연갈색 테두리 */
+    }
+
+     /* 로딩 메시지 버블 */
+    .loading-message-bubble {
+        background-color: #e0e0e0; /* lightgrey */
+        color: #555;
+        font-style: italic;
+    }
+
+  </style>
+  <script type="module" src="/main.js"></script>
 </head>
-<body class="bg-gray-100 p-4 flex flex-col items-center justify-center h-screen">
-  <div class="bg-white shadow-lg rounded-lg w-full max-w-lg p-4">
-    <h1 class="text-xl font-bold mb-4">GPT 간단 챗봇</h1>
-    <div id="chatbox" class="h-64 overflow-auto bg-gray-50 p-2 rounded mb-2"></div>
-    <input type="text" id="userInput" placeholder="질문을 입력하세요..." class="border p-2 w-full rounded mb-2">
-    <button id="sendBtn" class="bg-blue-500 text-white rounded p-2 w-full">질문하기</button>
+<body class="p-4 flex flex-col items-center justify-center min-h-screen">
+  <div class="chat-container"> <!-- 새로운 컨테이너 클래스 적용 -->
+    <h1 class="text-2xl text-center mb-4 book-title-text">📚 책갈피 요정의 책 추천 📚</h1> <!-- 제목 스타일 적용 -->
+    <div id="chatbox">
+      <!-- 메시지가 여기에 표시됩니다 -->
+      <!-- 첫 인사 메시지는 AI가 시스템 메시지에 따라 시작할 것입니다. -->
+    </div>
+    <div class="input-area"> <!-- 입력창과 버튼 컨테이너 적용 -->
+        <input type="text" id="userInput" placeholder="책갈피 요정에게 책 취향을 말해봐! ✨" autocomplete="off"> <!-- 자동 완성 끄기 -->
+        <button id="sendBtn">보내기</button>
+    </div>
   </div>
 </body>
 </html>
