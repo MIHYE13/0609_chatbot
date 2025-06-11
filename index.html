@@ -1,166 +1,88 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>책갈피 요정의 책 추천 📚✨</title>
-  <!-- Tailwind CSS CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- 커스텀 스타일 -->
-  <style>
-    /* 책 테마 배경 (따뜻한 톤) */
-    body {
-      /* 은은한 베이지-오렌지 그라데이션 */
-      background: linear-gradient(to bottom right, #f5f5dc, #ffe4c4, #ffdab9); /* beige, bisque, peachpuff */
-      background-size: cover;
-      background-attachment: fixed;
-      font-family: 'Arial', sans-serif;
-      color: #333;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI 음악 요정의 장르별 노래 맞히기 🎵</title>
 
-    /* 챗봇 제목 스타일 (책 테마) */
-    .book-title-text {
-      color: #8b4513; /* saddlebrown */
-      /* 또는 은은한 그라데이션 */
-      /* background: linear-gradient(to right, #a0522d, #d2691e); */ /* sienna, chocolate */
-      /* -webkit-background-clip: text; */
-      /* -webkit-text-fill-color: transparent; */
-      /* background-clip: text; */
-      /* color: transparent; */
-      font-weight: bold;
-    }
-
-
-    /* 챗봇 컨테이너 (카드) 스타일 */
-    .chat-container {
-        background-color: rgba(255, 255, 255, 0.95); /* 거의 투명하지 않은 흰색 */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-radius: 10px; /* 더 둥근 모서리 */
-        width: 100%;
-        max-width: 500px;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-
-
-    /* 챗박스 스타일 */
-    #chatbox {
-      height: 350px; /* 높이 증가 */
-      overflow-y: auto;
-      background-color: #fffaf0; /* florawhite - 아주 연한 노랑 */
-      padding: 15px; /* 패딩 증가 */
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #d3d3d3; /* lightgrey 테두리 */
-    }
-
-    /* 스크롤바 스타일 */
-    #chatbox::-webkit-scrollbar {
-      width: 8px;
-    }
-    #chatbox::-webkit-scrollbar-thumb {
-      background-color: rgba(139, 69, 19, 0.5); /* saddlebrown 반투명 */
-      border-radius: 4px;
-    }
-    #chatbox::-webkit-scrollbar-track {
-      background-color: rgba(139, 69, 19, 0.1); /* saddlebrown 더 투명 */
-    }
-
-    /* 입력창과 버튼 컨테이너 */
-    .input-area {
-        display: flex;
-        gap: 8px; /* 입력창과 버튼 사이 간격 */
-        margin-top: 1rem;
-    }
-
-    /* 입력창 스타일 */
-    #userInput {
-       flex-grow: 1; /* 사용 가능한 공간 채우기 */
-       border: 1px solid #ccc;
-       padding: 10px 12px;
-       border-radius: 8px;
-       font-size: 1rem;
-    }
-
-    /* 버튼 스타일 */
-    #sendBtn {
-      background-color: #d2691e; /* chocolate 색상 */
-      color: white;
-      font-weight: bold;
-      padding: 10px 20px; /* 패딩 조정 */
-      border-radius: 8px;
-      transition: background-color 0.3s ease;
-      cursor: pointer;
-      flex-shrink: 0; /* 크기 줄어들지 않게 */
-    }
-
-    #sendBtn:hover {
-      background-color: #cd853f; /* peru 색상 - 호버 시 약간 밝게 */
-    }
-
-    #sendBtn:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-
-    /* 메시지 버블 기본 스타일 */
-    #chatbox > div { /* chatbox 바로 아래 div (메시지 행 전체) */
-        display: flex; /* flexbox로 버블 정렬 */
-    }
-
-     #chatbox > div > div { /* 메시지 버블 자체 */
-        padding: 8px 12px;
-        border-radius: 16px; /* 더 둥근 모서리 */
-        margin-bottom: 8px; /* 메시지 간 간격 */
-        max-width: 80%;
-        word-break: break-word; /* 긴 단어 줄바꿈 */
-        /* float: right/left; clear: both; 는 flexbox와 함께 사용하지 않음 */
-     }
-
-
-    /* 사용자 메시지 버블 */
-    .text-right { /* 상위 div가 오른쪽 정렬 */
-        justify-content: flex-end; /* flex item (버블)을 오른쪽 끝으로 정렬 */
-    }
-    .user-message-bubble {
-        background-color: #add8e6; /* lightblue */
-        color: #000080; /* navy */
-    }
-
-     /* 봇 메시지 버블 */
-    .text-left { /* 상위 div가 왼쪽 정렬 */
-        justify-content: flex-start; /* flex item (버블)을 왼쪽 끝으로 정렬 */
-    }
-    .bot-message-bubble {
-        background-color: #ffe4b5; /* moccasin - 연한 주황색 계열 */
-        color: #4b0082; /* indigo */
-        border: 1px solid #cd853f; /* peru - 연갈색 테두리 */
-    }
-
-     /* 로딩 메시지 버블 */
-    .loading-message-bubble {
-        background-color: #e0e0e0; /* lightgrey */
-        color: #555;
-        font-style: italic;
-    }
-
-  </style>
-  <script type="module" src="/main.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+body { background: linear-gradient(to bottom right, #f5f5dc, #ffe4c4, #ffdab9); background-size: cover; background-attachment: fixed; font-family: 'Noto Sans KR', sans-serif; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+.container { background-color: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); text-align: center; max-width: 800px; width: 100%; }
+h1 { color: #8b4513; font-weight: bold; margin-bottom: 10px; }
+p.description { color: #555; margin-bottom: 25px; }
+.video-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; background-color: #000; border-radius: 10px; overflow: hidden; }
+#youtube-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+#video-cover { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(26, 26, 26, 0.95); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: opacity 0.4s ease-in-out; opacity: 1; }
+#video-cover.hidden { opacity: 0; pointer-events: none; }
+.cover-text { font-size: 1.2em; font-weight: bold; }
+.cover-icon { font-size: 3em; margin-bottom: 15px; }
+.controls-panel { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+.time-buttons-wrapper, .action-buttons-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.control-button { padding: 10px 20px; font-size: 1em; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.control-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+.control-button:disabled { background-color: #ccc !important; cursor: not-allowed; }
+#play-5s-btn { background-color: #3498db; }
+#play-10s-btn { background-color: #e67e22; }
+#play-20s-btn { background-color: #c0392b; }
+#play-all-btn { background-color: #8e44ad; }
+#toggle-screen-btn { background-color: #34495e; }
+.genre-buttons-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+.genre-button { padding: 15px 10px; font-size: 1.1em; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.genre-button:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.genre-button:disabled { background-color: #ccc !important; cursor: not-allowed; }
+#btn-dongyo { background-color: #f39c12; }
+#btn-gayo { background-color: #e74c3c; }
+#btn-classic { background-color: #8e44ad; }
+#btn-ost { background-color: #3498db; }
+#btn-event { background-color: #16a085; }
+#btn-random { background-color: #2c3e50; }
+#song-title-box { background-color: #ff7f50; color: #ff7f50; padding: 15px; border-radius: 10px; font-size: 1.5em; font-weight: bold; cursor: pointer; transition: all 0.3s ease; user-select: none; min-height: 1.5em; display: flex; align-items: center; justify-content: center; margin-top: 15px; }
+#song-title-box.revealed { background-color: #d2691e; color: white; }
+#song-title-box.initial-state { background-color: #8b4513; color: white; cursor: default; }
+.navigation-controls { margin-top: 15px; }
+#prev-song-btn { background-color: #607D8B; color: white; border: none; padding: 10px 25px; font-size: 1em; font-weight: bold; border-radius: 50px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+#prev-song-btn:hover:not(:disabled) { transform: scale(1.05); }
+#prev-song-btn:disabled { background-color: #9E9E9E; cursor: not-allowed; }
+</style>
 </head>
-<body class="p-4 flex flex-col items-center justify-center min-h-screen">
-  <div class="chat-container"> <!-- 새로운 컨테이너 클래스 적용 -->
-    <h1 class="text-2xl text-center mb-4 book-title-text">📚 책갈피 요정의 책 추천 📚</h1> <!-- 제목 스타일 적용 -->
-    <div id="chatbox">
-      <!-- 메시지가 여기에 표시됩니다 -->
-      <!-- 첫 인사 메시지는 AI가 시스템 메시지에 따라 시작할 것입니다. -->
+<body>
+<div class="container">
+    <h1>AI 음악 요정의 장르별 노래 맞히기! 🎵</h1>
+    <p class="description">원하는 장르를 선택하면 AI가 노래를 추천해줘요!</p>
+    <div class="video-wrapper">
+        <div id="youtube-player"></div>
+        <div id="video-cover" class="hidden">
+            <span class="cover-icon">🤫</span>
+            <p class="cover-text" id="cover-main-text">소리만 듣고 맞춰보세요!</p>
+        </div>
     </div>
-    <div class="input-area"> <!-- 입력창과 버튼 컨테이너 적용 -->
-        <input type="text" id="userInput" placeholder="책갈피 요정에게 책 취향을 말해봐! ✨" autocomplete="off"> <!-- 자동 완성 끄기 -->
-        <button id="sendBtn">보내기</button>
+    <div class="controls-panel">
+        <div class="time-buttons-wrapper">
+            <button id="play-5s-btn" class="control-button" disabled>5초 듣기</button>
+            <button id="play-10s-btn" class="control-button" disabled>10초 듣기</button>
+            <button id="play-20s-btn" class="control-button" disabled>20초 듣기</button>
+            <button id="play-all-btn" class="control-button" disabled>전체 듣기 🎧</button>
+        </div>
+        <div class="action-buttons-wrapper">
+            <button id="toggle-screen-btn" class="control-button" disabled>화면 가리기 🙈</button>
+        </div>
     </div>
-  </div>
+    <div class="genre-buttons-wrapper">
+        <!-- [수정] data-genre 속성 추가 -->
+        <button id="btn-dongyo" class="genre-button" data-genre="동요"><span>🧸</span>동요</button>
+        <button id="btn-gayo" class="genre-button" data-genre="가요"><span>🎤</span>가요</button>
+        <button id="btn-classic" class="genre-button" data-genre="클래식"><span>🎻</span>클래식</button>
+        <button id="btn-ost" class="genre-button" data-genre="OST"><span>🎬</span>OST</button>
+        <button id="btn-event" class="genre-button" data-genre="행사음악"><span>🎉</span>행사음악</button>
+        <button id="btn-random" class="genre-button" data-genre="무작위"><span>🎲</span>무작위</button>
+    </div>
+    <h2 id="song-title-box"></h2>
+    <div class="navigation-controls">
+        <button id="prev-song-btn" class="nav-button" disabled>◀️ 이전 문제로</button>
+    </div>
+</div>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script type="module" src="/main.js"></script>
 </body>
 </html>
